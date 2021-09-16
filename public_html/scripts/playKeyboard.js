@@ -1,11 +1,17 @@
+var __audioSynth = new AudioSynth();
+
+//Instruments
+let selectSound = {
+    value: "0" //piano
+};
+        
 function playKeyboard(){
     
-	let pressColor = '#1BC0EA'; //color when key is pressed
+	let pressColor = '#00ff99'; //color when key is pressed
 
 	var isMobile = !!navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i);
 	if(isMobile) { var evtListener = ['touchstart', 'touchend']; } else { var evtListener = ['mousedown', 'mouseup']; }
 
-	var __audioSynth = new AudioSynth();
 	__audioSynth.setVolume(0.5);
 	var __octave = 4; //sets position of middle C, normally the 4th octave
 	
@@ -204,9 +210,6 @@ function playKeyboard(){
 
 	// Generate keyboard
 	let visualKeyboard = document.getElementById('keyboard');
-	let selectSound = {
-		value: "0" //piano
-	};
 
 	var iKeys = 0;
 	var iWhite = 0;
@@ -217,12 +220,12 @@ function playKeyboard(){
 			if(n[2]!='b') {
 				var thisKey = document.createElement('div');
 				if(n.length>1) { //adding sharp sign makes 2 characters
-					thisKey.className = 'black key'; //2 classes
+					thisKey.className = 'black-key'; //2 classes
 					thisKey.style.width = '30px';
 					thisKey.style.height = '120px';
 					thisKey.style.left = (40 * (iWhite - 1)) + 25 + 'px';
 				} else {
-					thisKey.className = 'white key';
+					thisKey.className = 'white-key';
 					thisKey.style.width = '40px';
 					thisKey.style.height = '200px';
 					thisKey.style.left = 40 * iWhite + 'px';
@@ -234,8 +237,8 @@ function playKeyboard(){
 
 				let s = getDispStr(n,i,reverseLookupText);
 
-				label.innerHTML = '<b class="keyLabel">' + s + '</b>' + '<br /><br />' + n.substr(0,1) +
-					'<span name="OCTAVE_LABEL" value="' + i + '">' + (__octave + parseInt(i)) + '</span>' + (n.substr(1,1)?n.substr(1,1):'');
+				label.innerHTML = '<b class="keyLabel">' + s + '</b>'  +
+					'<span name="OCTAVE_LABEL" value="' + i + '">'  + '</span>' ;
 				thisKey.appendChild(label);
 				thisKey.setAttribute('ID', 'KEY_' + n + ',' + i);
 				thisKey.addEventListener(evtListener[0], (function(_temp) { return function() { fnPlayKeyboard({keyCode:_temp}); } })(reverseLookup[n + ',' + i]));
@@ -267,7 +270,7 @@ function playKeyboard(){
 			if(visualKeyboard[keyboard[e.keyCode]]) {
 				visualKeyboard[keyboard[e.keyCode]].style.backgroundColor = pressColor;
 				//visualKeyboard[keyboard[e.keyCode]].classList.add('playing'); //adding class only affects keypress and not mouse click
-				visualKeyboard[keyboard[e.keyCode]].style.marginTop = '5px';
+				//visualKeyboard[keyboard[e.keyCode]].style.marginTop = '5px'; move the key down removed
 				visualKeyboard[keyboard[e.keyCode]].style.boxShadow = 'none';
 			}
 			var arrPlayNote = keyboard[e.keyCode].split(',');
@@ -300,6 +303,9 @@ function playKeyboard(){
 	var fnPlayNote = function(note, octave) {
 
 		src = __audioSynth.generate(selectSound.value, note, octave, 2);
+                //DEBUGGING
+                console.log(selectSound.value, note, octave, 2);
+                //DEBUGGING
 		container = new Audio(src);
 		container.addEventListener('ended', function() { container = null; });
 		container.addEventListener('loadeddata', function(e) { e.target.play(); });
@@ -336,3 +342,33 @@ function playKeyboard(){
 	window.addEventListener('keyup', fnRemoveKeyBinding);
 }
 
+
+function playSong(songName){
+    if (songName === "mario"){
+        console.log("mario is playing now");
+        playMario();
+    }
+}
+
+function playMario(){
+    var notes = ['E','E','E','C','E','G'];
+    console.log(notes);
+    for (var i = 0; i < notes.length; i++) {
+        playNote(notes[i], 1);
+    }
+
+}
+
+function playNote(note, octave){
+    //DEBUGGING
+    console.log(selectSound.value, note, 4, 2);
+    //DEBUGGING
+    src = __audioSynth.generate(selectSound.value, note, 4, 2);
+		container = new Audio(src);
+		container.addEventListener('ended', function() { container = null; });
+		container.addEventListener('loadeddata', function(e) { e.target.play(); });
+		container.autoplay = false;
+		container.setAttribute('type', 'audio/wav');
+		container.load();
+		return container;
+}
